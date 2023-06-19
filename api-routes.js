@@ -3,30 +3,28 @@ const db = require('./db')
 
 router
   .route('/inventory')
-// TODO: Create a GET route that returns a list of everything in the inventory table
-// The response should look like:
-// [
-//   {
-//     "id": 1,
-//     "name": "Stratocaster",
-//     "image": "strat.jpg",
-//     "description": "One of the most iconic electric guitars ever made.",
-//     "price": 599.99,
-//     "quantity": 3
-//   },
-//   {...},
-//   {...}, etc
-// ]
-
-db.get = async (req, res) => {
-  try {
-    await db.query('SELECT * FROM inventory')
-    res.json(inventory)
-    res.status(200).json(inventory)
-  } catch (error) {
-    res.status(404)
+  // TODO: Create a GET route that returns a list of everything in the inventory table
+  // The response should look like:
+  // [
+  //   {
+  //     "id": 1,
+  //     "name": "Stratocaster",
+  //     "image": "strat.jpg",
+  //     "description": "One of the most iconic electric guitars ever made.",
+  //     "price": 599.99,
+  //     "quantity": 3
+  //   },
+  //   {...},
+  //   {...}, etc
+  // ]
+  .get = async (req, res) => {
+    try {
+      const inventory = await db.query(`SELECT * FROM inventory`);
+      res.status(200).json(inventory);
+    } catch (err) {
+      res.status(500).send(err);
+    }
   }
-}
 
 // TODO: Create a POST route that inserts inventory items
 // This route will accept price, quantity, name, image, and description as JSON
@@ -36,36 +34,37 @@ db.get = async (req, res) => {
 db.post = async (req, res) => {
   try {
     await db.query(`INSERT INTO inventory (price, quantity, name, image, description) VALUES (?, ?, ?, ?, ?)`, [req.body.price, req.body.quantity, req.body.name, req.body.image, req.body.description]);
-    res.status(204);
+    res.status(204).send();
   } catch (err) {
-    res.status(500);
+    res.status(500).send(err);
   }
 }
-
 
 router
   .route('/inventory/:id')
-// TODO: Write a GET route that returns a single item from the inventory
-// that matches the id from the route parameter
-// Should return 404 if no item is found
+  // TODO: Write a GET route that returns a single item from the inventory
+  // that matches the id from the route parameter
+  // Should return 404 if no item is found
 
-// The response should look like:
-// {
-//   "id": 1,
-//   "name": "Stratocaster",
-//   "image": "strat.jpg",
-//   "description": "One of the most iconic electric guitars ever made.",
-//   "price": 599.99,
-//   "quantity": 3
-// }
+  // The response should look like:
+  // {
+  //   "id": 1,
+  //   "name": "Stratocaster",
+  //   "image": "strat.jpg",
+  //   "description": "One of the most iconic electric guitars ever made.",
+  //   "price": 599.99,
+  //   "quantity": 3
+  // }
 
-db.get = async (req, res) => {
-  try {
-    await db.query(`SELECT * FROM inventory WHERE id = ?`, [req.params.id])
-  } catch (error) {
-    res.status(404)
+  .get = async (req, res) => {
+    try {
+      const [item] = await db.query(`SELECT * FROM inventory WHERE id = ?`, [req.params.id]);
+      res.status(200).json(item);
+    } catch (err) {
+      res.status(404).send(err);
+    }
   }
-}
+
 
 // TODO: Create a PUT route that updates the inventory table based on the id
 // in the route parameter.
@@ -76,10 +75,10 @@ db.get = async (req, res) => {
 
 db.put = async (req, res) => {
   try {
-    await db.query(`UPDATE inventory SET price = ?, quantity = ?, name = ?, description = ?, image = ?, WHERE id = ?`, [req.price, req.quantity, req.name, req.description, req.image, req.params.id])
-    res.status(204)
-  } catch (error) {
-    res.status(404)
+    await db.query(`UPDATE inventory SET price = ?, quantity = ?, name = ?, description = ?, image = ? WHERE id = ?`, [req.body.price, req.body.quantity, req.body.name, req.body.description, req.body.image, req.params.id]);
+    res.status(204).send();
+  } catch (err) {
+    res.status(404).send(err);
   }
 }
 
@@ -90,10 +89,10 @@ db.put = async (req, res) => {
 
 db.delete = async (req, res) => {
   try {
-    await db.query(`DELETE FROM inventory WHERE id = ?`, [req.params.id])
-    res.status(204)
-  } catch (error) {
-    res.status(404)
+    await db.query(`DELETE FROM inventory WHERE id = ?`, [req.params.id]);
+    res.status(204).send();
+  } catch (err) {
+    res.status(404).send(err);
   }
 }
 
